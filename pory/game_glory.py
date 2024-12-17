@@ -478,30 +478,26 @@ class PolytopiaEnv(gym.Env):
         path = self.find_path(start, target, movement_range)
         if not path:
             return False
-
+        self.current_observation[start][6] = 0
+        self.current_observation[start][7] = 0
+        self.current_observation[start][8] = 0
+        self.current_observation[start][10] = 0
+        self.current_observation[start][11] = 0
         for idx in path[1:]:
-            if self.current_observation[idx][6] != 0:
+            if self.current_observation[idx][6] != self.turn and self.current_observation[idx][6] != 0:
                 return False
-
-            self.current_observation[idx][6] = unit_owner
-            self.current_observation[idx][7] = unit_type
-            self.current_observation[idx][8] = unit_health
-            self.current_observation[idx][10] = start_tile[10]
-            self.current_observation[idx][11] = 1
 
             for unit in self.units:
                 if unit[0] == start:
                     unit[0] = idx
                     break
 
-            self.current_observation[start][6] = 0
-            self.current_observation[start][7] = 0
-            self.current_observation[start][8] = 0
-            self.current_observation[start][10] = 0
-            self.current_observation[start][11] = 0
-
             start = idx
-
+        self.current_observation[target][6] = unit_owner
+        self.current_observation[target][7] = unit_type
+        self.current_observation[target][8] = unit_health
+        self.current_observation[target][10] = start_tile[10]
+        self.current_observation[target][11] = 1
         self.update_obs()
         return True
 
@@ -540,7 +536,7 @@ class PolytopiaEnv(gym.Env):
                         continue
 
                     # Skip tiles occupied by any unit
-                    if unit_owner_on_tile != 0:
+                    if unit_owner_on_tile != self.turn and unit_owner_on_tile != 0:
                         continue
 
                     visited.add(neighbor)
@@ -753,35 +749,44 @@ class PolytopiaEnv(gym.Env):
         return 1
 
     def train_unit(self, tile_index, unit):
-        if self.current_observation[tile_index][5] == self.turn and self.current_observation[tile_index][2] == 1:
+        # Check if the tile is a city owned by the current player and currently empty of units
+        if self.current_observation[tile_index][5] == self.turn and self.current_observation[tile_index][2] == 1 and \
+                self.current_observation[tile_index][6] == 0:
             if self.turn == 1:
                 stars = self.p1stars[0][0]
             elif self.turn == 2:
                 stars = self.p2stars[0][0]
+
+            # Determine star cost and unit health
             if unit == 1:
-                if stars < 2:
-                    return False
-                else:
-                    self.current_observation[tile_index][6] = self.turn
-                    self.current_observation[tile_index][7] = 1
-                    self.current_observation[tile_index][8] = 10
-                    self.current_observation[tile_index][10] = 1
-                    self.current_observation[tile_index][11] = 1
-                    self.update_obs()
-                    return True
+                cost = 2
             elif unit == 4:
-                if stars < 3:
-                    return False
-                else:
-                    self.current_observation[tile_index][6] = self.turn
-                    self.current_observation[tile_index][7] = 4
-                    self.current_observation[tile_index][8] = 10
-                    self.current_observation[tile_index][10] = 1
-                    self.current_observation[tile_index][11] = 1
-                    self.update_obs()
-                    return True
+                cost = 3
             else:
+                return False  # Only warrior (1) and rider (4) implemented
+
+            if stars < cost:
                 return False
+
+            # Deduct stars
+            if self.turn == 1:
+                self.p1stars[0][0] -= cost
+            else:
+                self.p2stars[0][0] -= cost
+
+            # Place the new unit on the tile
+            unit_health = self.unit_stats[unit][0]
+            self.current_observation[tile_index][6] = self.turn
+            self.current_observation[tile_index][7] = unit
+            self.current_observation[tile_index][8] = unit_health
+            self.current_observation[tile_index][10] = 1  # Has attacked = 1 to prevent attacking same turn?
+            self.current_observation[tile_index][11] = 1  # Has moved = 1 to prevent moving same turn?
+
+            # **Add the new unit to the units list for exploration tracking**
+            self.units.append([tile_index, self.turn, unit, unit_health])
+
+            self.update_obs()
+            return True
         else:
             return False
 
