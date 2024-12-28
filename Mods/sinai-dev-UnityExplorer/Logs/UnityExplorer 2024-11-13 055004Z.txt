@@ -1,0 +1,52 @@
+UnityExplorer 4.9.4 initializing...
+[UniverseLib] UniverseLib 1.5.4.1 initializing...
+[UniverseLib] Finished UniverseLib initial setup.
+Initialized UnityCrashPrevention for: Canvas.get_renderingDisplaySize
+[Unity] SpriteAtlasManager.atlasRequested wasn't listened to while Heads requested.
+[Unity] [Bootloader] Initializing...
+[Unity] Need to update language sources
+[Unity] [Bootloader] Loading debug overlay...
+[Unity] [Bootloader] Loading debug console...
+[Unity] [Bootloader] Loading ConfigVars...
+[Unity] [Bootloader] Setting up BackendAdapter
+[Unity] [BackendAdapter], Setting signalR LogLevel Error, 
+[Unity] [BackendAdapter], Backendadapter set up using https://polytopia-prod.net/ (port: 443), 
+[Unity] [Bootloader] Logging level: Info
+[Unity] [Bootloader] Verifying version...
+[Unity] [Bootloader] Loading GameManager...
+[Unity] Steamworks: Initializing Steam
+[Unity] Enabling analytics
+[Unity] Game logic data version 20 loaded in 31.4911 ms
+[Unity] Avatar data version 1 loaded in 3.4274 ms
+[Unity] Cannot Play a disabled VideoPlayer
+[UniverseLib] Loaded Unhollowed modules in 0.88400006 seconds.
+[UniverseLib] Setup deobfuscation cache in 0.101 seconds.
+[Unity] Killing tweens upon unloading scene
+[Unity] Finished loading scene: StartScene
+[Unity] [StartupManager] Version information loaded
+[Unity] [LoginManager] Logging in...
+[Unity] Connection changed Connecting
+[Unity] Creating steam session ticket
+[Unity] ApplicationFocused False
+[UniverseLib] Initialized Legacy Input support
+[UniverseLib] 	 IL2CPP method has no corresponding pointer, aborting patch of UnityEngine.Cursor.lockState
+[UniverseLib] 	 IL2CPP method has no corresponding pointer, aborting patch of UnityEngine.AssetBundle.UnloadAllAssetBundles
+[UniverseLib] Loaded modern bundle for Unity 2021.3.35f1
+[UniverseLib] UniverseLib 1.5.4.1 initialized.
+Creating UI...
+
+UnityExplorer 4.9.4 (IL2CPP) initialized.
+[Unity] Connection changed Reconnected
+[Unity] [RemoteGameDataManager] Someone asks if we have loadedGameDataCache, and we don't
+[Unity] ApplicationFocused True
+[Unity] <color=#63d863>[CL]</color> RemoteClient ready
+[Unity] [LobbyManager] Updating Lobbies...
+[Unity] [RemoteGameDataManager] Someone asks if we have loadedGameDataCache, and we don't
+[Unity] [RemoteGameDataManager] Someone asks if we have loadedGameDataCache, and we don't
+[Unity] [RemoteGameDataManager] Updating GameSummaries...
+[Unity] ApplicationFocused False
+[Unity] ApplicationFocused True
+[Unity] ApplicationFocused False
+[Unity] Application ending after 45.44673 seconds
+[Unity] Logs saved on path C:/Users/samth/AppData/LocalLow/Midjiwan/Polytopia\Logs_past.txt.
+[Unity] <color=#FFFFFF>[GameManager]</color> Disconnected from server
