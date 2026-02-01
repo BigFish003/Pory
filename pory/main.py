@@ -1,5 +1,7 @@
 import time
 import warnings
+
+from tensordict import TensorDict
 from torch import multiprocessing
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -18,7 +20,6 @@ from torchrl.envs.utils import check_env_specs, ExplorationType, set_exploration
 from torchrl.modules import ProbabilisticActor, TanhNormal, ValueOperator
 from torchrl.objectives import ClipPPOLoss
 from torchrl.objectives.value import GAE
-from tqdm import tqdm
 
 from game_glory import PolytopiaEnv
 from render import Render
@@ -109,10 +110,51 @@ class PPOValueNet(nn.Module):
         return value
 
 
+def trajectories_to_tensordict(states, tiles, actions, target_tiles, rewards, dones):
+    # Convert lists to tensors
+    states_tensor = torch.cat(states, dim=0)  # Concatenate state tensors
+    tiles_tensor = torch.tensor(tiles).unsqueeze(-1)  # Add feature dimension
+    actions_tensor = torch.tensor(actions).unsqueeze(-1)  # Add feature dimension
+    target_tiles_tensor = torch.tensor(target_tiles).unsqueeze(-1)  # Add feature dimension
+    rewards_tensor = torch.tensor(rewards).unsqueeze(-1)  # Add feature dimension
+    dones_tensor = torch.tensor(dones).unsqueeze(-1)  # Add feature dimension
+
+    # Determine the batch size (B) and time steps (T)
+    B = 1  # Assuming one trajectory for now
+    T = states_tensor.shape[0]  # Number of time steps
+
+    # Reshape tensors to [B, T, F]
+    states_tensor = states_tensor.view(B, T, -1)  # Ensure correct shape
+    tiles_tensor = tiles_tensor.view(B, T, -1)
+    actions_tensor = actions_tensor.view(B, T, -1)
+    target_tiles_tensor = target_tiles_tensor.view(B, T, -1)
+    rewards_tensor = rewards_tensor.view(B, T, -1)
+    dones_tensor = dones_tensor.view(B, T, -1)
+
+    # Create next states, rewards, dones
+    next_states = states_tensor[:, 1:, :]  # Shift states by 1 for "next"
+    next_rewards = rewards_tensor[:, 1:, :]  # Shift rewards by 1 for "next"
+    next_dones = dones_tensor[:, 1:, :]  # Shift dones by 1 for "next"
+    terminated = next_dones.clone()  # Example: Same as dones for terminated
+
+    # Create the tensordict
+    tensordict = TensorDict(
+        {
+            "observation": states_tensor[:, :-1, :],  # All states except last
+            "action": actions_tensor[:, :-1, :],  # All actions except last
+            ("next", "reward"): next_rewards,
+            ("next", "done"): next_dones,
+            ("next", "terminated"): terminated,
+            ("next", "observation"): next_states,
+        },
+        batch_size=[B, T - 1],  # Exclude last timestep for actions/rewards
+    )
+    return tensordict
+
 def collect_trajectories(policy1, policy2, value_net, num_steps=10, gamma=0.99, lam=0.95):
     env = PolytopiaEnv()
     env.reset()
-    render = Render()
+    #render = Render()
 
     states1 = []
     tiles1 = []
@@ -128,7 +170,7 @@ def collect_trajectories(policy1, policy2, value_net, num_steps=10, gamma=0.99, 
     dones2 = []
     rewards2 = []
 
-    rest = 0.2
+    rest = 0
 
     previous_points1 = env.get_turn_and_points()[1]
     previous_points2 = env.get_turn_and_points()[2]
@@ -198,7 +240,6 @@ def collect_trajectories(policy1, policy2, value_net, num_steps=10, gamma=0.99, 
             previous_points1 = points
             obs = env.get_obs(1)
 
-            render.render(obs)
             time.sleep(rest)
         if env.turn == 2:
             policy = policy2
@@ -264,7 +305,7 @@ def collect_trajectories(policy1, policy2, value_net, num_steps=10, gamma=0.99, 
             previous_points2 = points
             obs = env.get_obs(2)
 
-            render.render(obs)
+            #render.render(obs)
 
             time.sleep(rest)
 
@@ -274,8 +315,36 @@ policy1 = PPOConvAgent()
 policy2 = PPOConvAgent()
 value_net = PPOValueNet()
 
-policy1old = PPOConvAgent()
-policy2old = PPOConvAgent()
-
 s, t, a, ta, r, d = (collect_trajectories(policy1,policy2, value_net,num_steps=1000))
 print(len(s),len(t),len(a),len(ta),len(r),len(d))
+
+clip_epsilon = 0.2
+gamma = 0.99
+lmbda = 0.95
+entropy_eps = 1e-4
+frames_per_batch = 1000
+total_frames = 50000
+lr = 3e-4
+loss_module = ClipPPOLoss(
+    actor_network=policy1,
+    critic_network=value_net,
+    clip_epsilon=clip_epsilon,
+    entropy_bonus=bool(entropy_eps),
+    entropy_coef=entropy_eps,
+    # these keys match by default but we set this for completeness
+    critic_coef=1.0,
+    loss_critic_type="smooth_l1",
+)
+advantage_module = GAE(
+    gamma=gamma, lmbda=lmbda, value_network=value_net, average_gae=True
+)
+optim = torch.optim.Adam(loss_module.parameters(), lr)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+    optim, total_frames // frames_per_batch, 0.0
+)
+for _ in range(1000):
+    s, t, a, ta, r, d = collect_trajectories(policy1, policy2, value_net, num_steps=1000)
+    tensor = trajectories_to_tensordict(s,t,a,ta,r,d)
+    for i in range(len(s)):
+        advantage_module(tensor)
+
