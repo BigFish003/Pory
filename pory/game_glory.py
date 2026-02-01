@@ -22,7 +22,7 @@ import json
 class PolytopiaEnv(gym.Env):
     def __init__(self):
         super(PolytopiaEnv, self).__init__()
-        self.filename = r"C:\Users\samth\Downloads\sample_map.json"
+        self.filename = r"C:\Users\samth\Downloads\Maps.json"
 
         # Adjusted action space to include passing the turn (action code 121)
         self.action_space = spaces.Discrete(122)  # Actions from 0 to 120 are tiles, 121 is pass, 122-131 are tech tree
@@ -46,7 +46,6 @@ class PolytopiaEnv(gym.Env):
         self.tile_cities = [0] * 121
 
         self.start_units = {
-            0:4,
             1: 1,  # Xin-xi - Warrior
             2: 1,  # Imperius - Warrior
             3: 1,  # Bardur - Warrior
@@ -75,7 +74,6 @@ class PolytopiaEnv(gym.Env):
 
         with open(self.filename, 'r') as f:
             self.maps = json.load(f)
-        print(self.maps)
 
         # Initialize explored maps for both players
         self.p1_explored = np.zeros(121, dtype=bool)
@@ -91,7 +89,7 @@ class PolytopiaEnv(gym.Env):
 
     def reset(self):
         # Select a random map
-        self.maps = self.maps['maps']
+        selected_map = random.choice(self.maps)
         selected_map = self.maps[0]
         tiles = selected_map['tiles']
 
@@ -523,7 +521,6 @@ class PolytopiaEnv(gym.Env):
 
             # Check if we've reached the goal and are within max_distance
             if current == goal and len(path) - 1 <= max_distance:
-                print(path)
                 return path
 
             # If path length exceeds max_distance, skip further exploration
@@ -766,16 +763,10 @@ class PolytopiaEnv(gym.Env):
                     return False
                 else:
                     self.current_observation[tile_index][6] = self.turn
-                    self.current_observation[tile_index][7] = 1  # Unit type 1 (Warrior)
-                    self.current_observation[tile_index][8] = 10  # Health from unit_stats
-                    self.current_observation[tile_index][10] = 1  # Has Attacked
-                    self.current_observation[tile_index][11] = 1  # Has Moved
-                    # Add the new unit to the units list
-                    self.units.append([tile_index, self.turn, 1, 10])
-                    if self.turn == 1:
-                        self.p1stars[0][0] -= 2
-                    elif self.turn == 2:
-                        self.p2stars[0][0] -= 2
+                    self.current_observation[tile_index][7] = 1
+                    self.current_observation[tile_index][8] = 10
+                    self.current_observation[tile_index][10] = 1
+                    self.current_observation[tile_index][11] = 1
                     self.update_obs()
                     return True
             elif unit == 4:
@@ -783,16 +774,10 @@ class PolytopiaEnv(gym.Env):
                     return False
                 else:
                     self.current_observation[tile_index][6] = self.turn
-                    self.current_observation[tile_index][7] = 4  # Unit type 4 (Rider)
-                    self.current_observation[tile_index][8] = 10  # Health from unit_stats
+                    self.current_observation[tile_index][7] = 4
+                    self.current_observation[tile_index][8] = 10
                     self.current_observation[tile_index][10] = 1
                     self.current_observation[tile_index][11] = 1
-                    # Add the new unit to the units list
-                    self.units.append([tile_index, self.turn, 4, 10])
-                    if self.turn == 1:
-                        self.p1stars[0][0] -= 3
-                    elif self.turn == 2:
-                        self.p2stars[0][0] -= 3
                     self.update_obs()
                     return True
             else:
@@ -868,7 +853,6 @@ class PolytopiaEnv(gym.Env):
                         mask[i] = 1
                     elif tile[6] != 0 and tile[6] != self.turn and distance <= self.unit_stats.get(unit_type)[4]:
                         mask[i] = 1
-
         return mask
 
     def find_valid_attacks(self, index):

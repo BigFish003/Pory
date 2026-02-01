@@ -1,0 +1,40 @@
+UnityExplorer 4.9.4 initializing...
+[UniverseLib] UniverseLib 1.5.4.1 initializing...
+[UniverseLib] Finished UniverseLib initial setup.
+Initialized UnityCrashPrevention for: Canvas.get_renderingDisplaySize
+[Unity] SpriteAtlasManager.atlasRequested wasn't listened to while Heads requested.
+[UniverseLib] Loaded Unhollowed modules in 0.46300003 seconds.
+[UniverseLib] Setup deobfuscation cache in 0.079 seconds.
+[UniverseLib] Initialized Legacy Input support
+[UniverseLib] 	 IL2CPP method has no corresponding pointer, aborting patch of UnityEngine.Cursor.lockState
+[UniverseLib] 	 IL2CPP method has no corresponding pointer, aborting patch of UnityEngine.AssetBundle.UnloadAllAssetBundles
+[UniverseLib] Loaded modern bundle for Unity 2021.3.35f1
+[UniverseLib] UniverseLib 1.5.4.1 initialized.
+Creating UI...
+
+UnityExplorer 4.9.4 (IL2CPP) initialized.
+[Unity] [Bootloader] Initializing...
+[Unity] Need to update language sources
+[Unity] [Bootloader] Loading debug overlay...
+[Unity] [Bootloader] Loading debug console...
+[Unity] [Bootloader] Loading ConfigVars...
+[Unity] [Bootloader] Setting up BackendAdapter
+[Unity] [BackendAdapter], Setting signalR LogLevel Error, 
+[Unity] [BackendAdapter], Backendadapter set up using https://polytopia-prod.net/ (port: 443), 
+[Unity] [Bootloader] Logging level: Info
+[Unity] [Bootloader] Verifying version...
+[Unity] [Bootloader] Loading GameManager...
+[Unity] Steamworks: Initializing Steam
+[Unity] Enabling analytics
+[Unity] Game logic data version 20 loaded in 25.2754 ms
+[Unity] Avatar data version 1 loaded in 2.5619 ms
+[Unity] Killing tweens upon unloading scene
+[Unity] Finished loading scene: StartScene
+[Unity] [StartupManager] Version information loaded
+[Unity] [LoginManager] Logging in...
+[Unity] Connection changed Connecting
+[Unity] Creating steam session ticket
+[Unity] Connection changed Reconnected
+[Unity] [RemoteGameDataManager] Someone asks if we have loadedGameDataCache, and we don't
+[Unity] Application ending after 6.553647 seconds
+[Unity] Logs saved on path C:/Users/samth/AppData/LocalLow/Midjiwan/Polytopia\Logs_past.txt.
